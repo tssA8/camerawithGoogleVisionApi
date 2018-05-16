@@ -33,13 +33,17 @@ import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.text.Text;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.BarcodeUpdateListener{
+public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.BarcodeUpdateListener,OcrGraphic.OcrUpdateListener{
     private String TAG = this.getClass().getSimpleName();
     private Context context;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
@@ -414,6 +418,12 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
 
 
+        //ocr
+        TextRecognizer textRecognizer = new TextRecognizer.Builder(context).build();
+        OcrTrackerFactory ocrTrackerFactory = new OcrTrackerFactory(mGraphicOverlay,MainActivity.this);
+        textRecognizer.setProcessor(new MultiProcessor.Builder<>(ocrTrackerFactory).build());
+
+
         if(barcodeDetector.isOperational()) {
             Log.d(TAG,"AAA_barcodeDetector isOperational ");
         }else{
@@ -421,9 +431,17 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         }
 
 
+        if(textRecognizer.isOperational()){
+            Log.d(TAG,"AAA_textRecognizer isOperational ");
+        }else{
+            Log.e(TAG,"AAA_textRecognizer is fail ");
+        }
+
+
         MultiDetector multiDetector = new MultiDetector.Builder()
                 .add(faceDetector)
                 .add(barcodeDetector)
+                .add(textRecognizer)
                 .build();
 
 
@@ -432,6 +450,10 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         } else {
             Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show();
         }
+
+
+
+
 
         if(useCamera2) {
             mCamera2Source = new Camera2Source.Builder(context, multiDetector)
@@ -649,6 +671,16 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
                     tv_barcodeResult.setText("辨識結果: "+barcodeResult);
                 }
             });
+        }
+    }
+
+    @Override
+    public void onOcrDetected(TextBlock mText) {
+        if(mText!=null){
+            List<? extends Text> textComponents = mText.getComponents();
+            for(Text currentText : textComponents) {
+                Log.d(TAG,"AAA_onOcrDetected : "+mText.getValue());
+            }
         }
     }
 }
