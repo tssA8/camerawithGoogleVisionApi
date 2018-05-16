@@ -29,9 +29,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.MultiDetector;
 import com.google.android.gms.vision.MultiProcessor;
-import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
-import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 
 import java.io.File;
@@ -55,11 +53,11 @@ public class MainActivity extends AppCompatActivity {
 
     // COMMON TO BOTH CAMERAS
     private CameraSourcePreview mPreview;
-    private FaceDetector previewFaceDetector = null;
-    private  BarcodeDetector barcodeDetector=null;
-    private  BarcodeTrackerFactory barcodeFactory = null;
+//    private FaceDetector previewFaceDetector = null;
+//    private  BarcodeDetector barcodeDetector=null;
+//    private  BarcodeTrackerFactory barcodeFactory = null;
     private GraphicOverlay mGraphicOverlay;
-    private FaceGraphic mFaceGraphic;
+//    private FaceGraphic mFaceGraphic;
     private boolean wasActivityResumed = false;
     private boolean isRecordingVideo = false;
     private Button takePictureButton;
@@ -338,67 +336,89 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createCameraSourceFront() {
-        previewFaceDetector = new FaceDetector.Builder(context)
-                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-                .setMode(FaceDetector.FAST_MODE)
-                .setProminentFaceOnly(true)
-                .setTrackingEnabled(true)
-                .build();
-
-        if(previewFaceDetector.isOperational()) {
-            previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
-        } else {
-            Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show();
-        }
-
-        if(useCamera2) {
-            mCamera2Source = new Camera2Source.Builder(context, previewFaceDetector)
-                    .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
-                    .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
-                    .setFacing(Camera2Source.CAMERA_FACING_FRONT)
-                    .build();
-
-            //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
-            //WE WILL USE CAMERA1.
-            if(mCamera2Source.isCamera2Native()) {
-                startCameraSource();
-            } else {
-                useCamera2 = false;
-                if(usingFrontCamera) createCameraSourceFront();
-                else createCameraSourceBack();
-            }
-        } else {
-            mCameraSource = new CameraSource.Builder(context, previewFaceDetector)
-                    .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                    .setRequestedFps(30.0f)
-                    .build();
-
-            startCameraSource();
-        }
+//        previewFaceDetector = new FaceDetector.Builder(context)
+//                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
+//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+//                .setMode(FaceDetector.FAST_MODE)
+//                .setProminentFaceOnly(true)
+//                .setTrackingEnabled(true)
+//                .build();
+//
+//        if(previewFaceDetector.isOperational()) {
+//            previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
+//        } else {
+//            Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show();
+//        }
+//
+//        if(useCamera2) {
+//            mCamera2Source = new Camera2Source.Builder(context, previewFaceDetector)
+//                    .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
+//                    .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
+//                    .setFacing(Camera2Source.CAMERA_FACING_FRONT)
+//                    .build();
+//
+//            //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
+//            //WE WILL USE CAMERA1.
+//            if(mCamera2Source.isCamera2Native()) {
+//                startCameraSource();
+//            } else {
+//                useCamera2 = false;
+//                if(usingFrontCamera) createCameraSourceFront();
+//                else createCameraSourceBack();
+//            }
+//        } else {
+//            mCameraSource = new CameraSource.Builder(context, previewFaceDetector)
+//                    .setFacing(CameraSource.CAMERA_FACING_FRONT)
+//                    .setRequestedFps(30.0f)
+//                    .build();
+//
+//            startCameraSource();
+//        }
     }
 
     private void createCameraSourceBack() {
 
 
-        barcodeDetector = new BarcodeDetector.Builder(context).build();
-        barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
+//        barcodeDetector = new BarcodeDetector.Builder(context).build();
+//        barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
+//        barcodeDetector.setProcessor(
+//                new MultiProcessor.Builder<>(barcodeFactory).build());
+//
+//
+//        previewFaceDetector = new FaceDetector.Builder(context)
+//                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
+//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+//                .setMode(FaceDetector.FAST_MODE)
+//                .setProminentFaceOnly(true)
+//                .setTrackingEnabled(true)
+//                .build();
+//        previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
+
+        FaceDetector faceDetector = new FaceDetector.Builder(context).build();
+        FaceTrackerFactory faceFactory = new FaceTrackerFactory(mGraphicOverlay);
+        faceDetector.setProcessor(
+                new MultiProcessor.Builder<>(faceFactory).build());
+
+
+        // A barcode detector is created to track barcodes.  An associated multi-processor instance
+        // is set to receive the barcode detection results, track the barcodes, and maintain
+        // graphics for each barcode on screen.  The factory is used by the multi-processor to
+        // create a separate tracker instance for each barcode.
+        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
+        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
         barcodeDetector.setProcessor(
                 new MultiProcessor.Builder<>(barcodeFactory).build());
 
 
-        previewFaceDetector = new FaceDetector.Builder(context)
-                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-                .setMode(FaceDetector.FAST_MODE)
-                .setProminentFaceOnly(true)
-                .setTrackingEnabled(true)
-                .build();
-        previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
+        if(barcodeDetector.isOperational()) {
+            Log.d(TAG,"AAA_barcodeDetector isOperational ");
+        }else{
+            Log.e(TAG,"AAA_barcodeDetector is fail ");
+        }
 
 
         MultiDetector multiDetector = new MultiDetector.Builder()
-                .add(previewFaceDetector)
+                .add(faceDetector)
                 .add(barcodeDetector)
                 .build();
 
@@ -463,59 +483,59 @@ public class MainActivity extends AppCompatActivity {
         mPreview.stop();
     }
 
-    private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
-        @Override
-        public Tracker<Face> create(Face face) {
-            return new GraphicFaceTracker(mGraphicOverlay);
-        }
-    }
-
-    private class GraphicFaceTracker extends Tracker<Face> {
-        private GraphicOverlay mOverlay;
-
-        GraphicFaceTracker(GraphicOverlay overlay) {
-            mOverlay = overlay;
-            mFaceGraphic = new FaceGraphic(overlay, context);
-        }
-
-        /**
-         * Start tracking the detected face instance within the face overlay.
-         */
-        @Override
-        public void onNewItem(int faceId, Face item) {
-            mFaceGraphic.setId(faceId);
-        }
-
-        /**
-         * Update the position/characteristics of the face within the overlay.
-         */
-        @Override
-        public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
-            mOverlay.add(mFaceGraphic);
-            mFaceGraphic.updateFace(face);
-        }
-
-        /**
-         * Hide the graphic when the corresponding face was not detected.  This can happen for
-         * intermediate frames temporarily (e.g., if the face was momentarily blocked from
-         * view).
-         */
-        @Override
-        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-            mFaceGraphic.goneFace();
-            mOverlay.remove(mFaceGraphic);
-        }
-
-        /**
-         * Called when the face is assumed to be gone for good. Remove the graphic annotation from
-         * the overlay.
-         */
-        @Override
-        public void onDone() {
-            mFaceGraphic.goneFace();
-            mOverlay.remove(mFaceGraphic);
-        }
-    }
+//    private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
+//        @Override
+//        public Tracker<Face> create(Face face) {
+//            return new GraphicFaceTracker(mGraphicOverlay);
+//        }
+//    }
+//
+//    private class GraphicFaceTracker extends Tracker<Face> {
+//        private GraphicOverlay mOverlay;
+//
+//        GraphicFaceTracker(GraphicOverlay overlay) {
+//            mOverlay = overlay;
+//            mFaceGraphic = new FaceGraphic(overlay, context);
+//        }
+//
+//        /**
+//         * Start tracking the detected face instance within the face overlay.
+//         */
+//        @Override
+//        public void onNewItem(int faceId, Face item) {
+//            mFaceGraphic.setId(faceId);
+//        }
+//
+//        /**
+//         * Update the position/characteristics of the face within the overlay.
+//         */
+//        @Override
+//        public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
+//            mOverlay.add(mFaceGraphic);
+//            mFaceGraphic.updateFace(face);
+//        }
+//
+//        /**
+//         * Hide the graphic when the corresponding face was not detected.  This can happen for
+//         * intermediate frames temporarily (e.g., if the face was momentarily blocked from
+//         * view).
+//         */
+//        @Override
+//        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
+//            mFaceGraphic.goneFace();
+//            mOverlay.remove(mFaceGraphic);
+//        }
+//
+//        /**
+//         * Called when the face is assumed to be gone for good. Remove the graphic annotation from
+//         * the overlay.
+//         */
+//        @Override
+//        public void onDone() {
+//            mFaceGraphic.goneFace();
+//            mOverlay.remove(mFaceGraphic);
+//        }
+//    }
 
     private final CameraSourcePreview.OnTouchListener CameraPreviewTouchListener = new CameraSourcePreview.OnTouchListener() {
         @Override
@@ -606,8 +626,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopCameraSource();
-        if(previewFaceDetector != null) {
-            previewFaceDetector.release();
-        }
+//        if(previewFaceDetector != null) {
+//            previewFaceDetector.release();
+//        }
     }
 }

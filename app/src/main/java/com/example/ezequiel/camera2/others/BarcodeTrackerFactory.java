@@ -19,6 +19,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
@@ -80,6 +81,7 @@ class BarcodeGraphic extends TrackedGraphic<Barcode> {
      */
     void updateItem(Barcode barcode) {
         mBarcode = barcode;
+        Log.d("BarcodeTrackerFactory ","Barcode : "+barcode);
         postInvalidate();
     }
 
