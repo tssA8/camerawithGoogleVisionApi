@@ -27,7 +27,6 @@ import android.widget.Toast;
 
 import com.example.ezequiel.camera2.R;
 import com.example.ezequiel.camera2.others.Camera2Source;
-import com.example.ezequiel.camera2.others.CameraSource;
 import com.example.ezequiel.camera2.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -56,8 +55,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
     private TextView tv_ocrResult;
     private ImageView ivAutoFocus;
 
-    // CAMERA VERSION ONE DECLARATIONS
-    private CameraSource mCameraSource = null;
 
     // CAMERA VERSION TWO DECLARATIONS
     private Camera2Source mCamera2Source = null;
@@ -103,11 +100,8 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
                 public void onClick(View v) {
                     videoButton.setEnabled(false);
                     takePictureButton.setEnabled(false);
-                    if(useCamera2) {
-                        if(mCamera2Source != null)mCamera2Source.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback);
-                    } else {
-                        if(mCameraSource != null)mCameraSource.takePicture(cameraSourceShutterCallback, cameraSourcePictureCallback);
-                    }
+                    if(mCamera2Source != null)
+                        mCamera2Source.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback);
                 }
             });
 
@@ -117,17 +111,11 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
                     takePictureButton.setEnabled(false);
                     videoButton.setEnabled(false);
                     if(isRecordingVideo) {
-                        if(useCamera2) {
-                            if(mCamera2Source != null)mCamera2Source.stopVideo();
-                        } else {
-                            if(mCameraSource != null)mCameraSource.stopVideo();
-                        }
+                        if(mCamera2Source != null)
+                            mCamera2Source.stopVideo();
                     } else {
-                        if(useCamera2){
-                            if(mCamera2Source != null)mCamera2Source.recordVideo(camera2SourceVideoStartCallback, camera2SourceVideoStopCallback, camera2SourceVideoErrorCallback);
-                        } else {
-                            if(mCameraSource != null)mCameraSource.recordVideo(cameraSourceVideoStartCallback, cameraSourceVideoStopCallback, cameraSourceVideoErrorCallback);
-                        }
+                        if(mCamera2Source != null)
+                            mCamera2Source.recordVideo(camera2SourceVideoStartCallback, camera2SourceVideoStopCallback, camera2SourceVideoErrorCallback);
                     }
                 }
             });
@@ -137,79 +125,7 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
     }
 
 
-    final CameraSource.ShutterCallback cameraSourceShutterCallback = new CameraSource.ShutterCallback() {@Override public void onShutter() {Log.d(TAG, "Shutter Callback!");}};
-    final CameraSource.PictureCallback cameraSourcePictureCallback = new CameraSource.PictureCallback() {
-        @Override
-        public void onPictureTaken(Bitmap picture) {
-            Log.d(TAG, "Taken picture is here!");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    videoButton.setEnabled(true);
-                    takePictureButton.setEnabled(true);
-                }
-            });
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "/camera_picture.png"));
-                picture.compress(Bitmap.CompressFormat.JPEG, 95, out);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-    final CameraSource.VideoStartCallback cameraSourceVideoStartCallback = new CameraSource.VideoStartCallback() {
-        @Override
-        public void onVideoStart() {
-            isRecordingVideo = true;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    videoButton.setEnabled(true);
-                    videoButton.setText(getString(R.string.stop_video));
-                }
-            });
-            Toast.makeText(context, "Video STARTED!", Toast.LENGTH_SHORT).show();
-        }
-    };
-    final CameraSource.VideoStopCallback cameraSourceVideoStopCallback = new CameraSource.VideoStopCallback() {
-        @Override
-        public void onVideoStop(String videoFile) {
-            isRecordingVideo = false;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    takePictureButton.setEnabled(true);
-                    videoButton.setEnabled(true);
-                    videoButton.setText(getString(R.string.record_video));
-                }
-            });
-            Toast.makeText(context, "Video STOPPED!", Toast.LENGTH_SHORT).show();
-        }
-    };
-    final CameraSource.VideoErrorCallback cameraSourceVideoErrorCallback = new CameraSource.VideoErrorCallback() {
-        @Override
-        public void onVideoError(String error) {
-            isRecordingVideo = false;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    takePictureButton.setEnabled(true);
-                    videoButton.setEnabled(true);
-                    videoButton.setText(getString(R.string.record_video));
-                }
-            });
-            Toast.makeText(context, "Video Error: "+error, Toast.LENGTH_LONG).show();
-        }
-    };
+
     final Camera2Source.VideoStartCallback camera2SourceVideoStartCallback = new Camera2Source.VideoStartCallback() {
         @Override
         public void onVideoStart() {
@@ -388,6 +304,8 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
                     .build();
 
             startCameraSource();
+        }else{
+            finish();
         }
     }
 
@@ -400,16 +318,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
                     Log.e(TAG, "Unable to start camera source 2.", e);
                     mCamera2Source.release();
                     mCamera2Source = null;
-                }
-            }
-        } else {
-            if (mCameraSource != null) {
-                cameraVersion.setText("Camera 1");
-                try {mPreview.start(mCameraSource, mGraphicOverlay);
-                } catch (IOException e) {
-                    Log.e(TAG, "Unable to start camera source.", e);
-                    mCameraSource.release();
-                    mCameraSource = null;
                 }
             }
         }
@@ -443,19 +351,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
                                 });
                             }
                         }, pEvent, v.getWidth(), v.getHeight());
-                    } else {
-                        ivAutoFocus.setVisibility(View.GONE);
-                    }
-                } else {
-                    if(mCameraSource != null) {
-                        mCameraSource.autoFocus(new CameraSource.AutoFocusCallback() {
-                            @Override
-                            public void onAutoFocus(boolean success) {
-                                runOnUiThread(new Runnable() {
-                                    @Override public void run() {ivAutoFocus.setVisibility(View.GONE);}
-                                });
-                            }
-                        });
                     } else {
                         ivAutoFocus.setVisibility(View.GONE);
                     }
