@@ -1,4 +1,4 @@
-package com.example.ezequiel.camera2.others;
+package com.example.ezequiel.camera2.Tracker;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -26,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ezequiel.camera2.R;
+import com.example.ezequiel.camera2.others.Camera2Source;
+import com.example.ezequiel.camera2.others.CameraSource;
 import com.example.ezequiel.camera2.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;

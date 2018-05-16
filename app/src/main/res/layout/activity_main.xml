@@ -6,15 +6,15 @@
     android:orientation="horizontal"
     android:fitsSystemWindows="false">
 
-    <com.example.ezequiel.camera2.others.CameraSourcePreview
+    <com.example.ezequiel.camera2.Tracker.CameraSourcePreview
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.example.ezequiel.camera2.others.GraphicOverlay
+        <com.example.ezequiel.camera2.Tracker.GraphicOverlay
             android:id="@+id/faceOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </com.example.ezequiel.camera2.others.CameraSourcePreview>
+    </com.example.ezequiel.camera2.Tracker.CameraSourcePreview>
 
     <LinearLayout
         android:layout_width="match_parent"

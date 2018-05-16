@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.ezequiel.camera2.others;
+package com.example.ezequiel.camera2.Tracker;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,10 +29,10 @@ import com.google.android.gms.vision.face.Face;
  * Factory for creating a tracker and associated graphic to be associated with a new face.  The
  * multi-processor uses this factory to create face trackers as needed -- one for each individual.
  */
-class FaceTrackerFactory implements MultiProcessor.Factory<Face> {
+public class FaceTrackerFactory implements MultiProcessor.Factory<Face> {
     private GraphicOverlay mGraphicOverlay;
 
-    FaceTrackerFactory(GraphicOverlay graphicOverlay) {
+    public FaceTrackerFactory(GraphicOverlay graphicOverlay) {
         mGraphicOverlay = graphicOverlay;
     }
 

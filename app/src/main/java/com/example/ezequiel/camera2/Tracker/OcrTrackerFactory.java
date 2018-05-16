@@ -1,4 +1,4 @@
-package com.example.ezequiel.camera2.others;
+package com.example.ezequiel.camera2.Tracker;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -22,7 +22,7 @@ public class OcrTrackerFactory implements MultiProcessor.Factory<TextBlock>{
     private GraphicOverlay mGraphicOverlay;
     private OcrGraphic.OcrUpdateListener ocrUpdateListener;
 
-    OcrTrackerFactory(GraphicOverlay graphicOverlay,Context context) {
+    public OcrTrackerFactory(GraphicOverlay graphicOverlay, Context context) {
         mGraphicOverlay = graphicOverlay;
         if (context instanceof OcrGraphic.OcrUpdateListener) {
             this.ocrUpdateListener = (OcrGraphic.OcrUpdateListener) context;

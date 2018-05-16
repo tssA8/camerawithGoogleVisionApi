@@ -1,22 +1,21 @@
-package com.example.ezequiel.camera2.others;
+package com.example.ezequiel.camera2.Tracker;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
+import com.example.ezequiel.camera2.others.AutoFitTextureView;
+import com.example.ezequiel.camera2.others.Camera2Source;
+import com.example.ezequiel.camera2.others.CameraSource;
 import com.example.ezequiel.camera2.utils.Utils;
 import com.google.android.gms.common.images.Size;
 
 import java.io.IOException;
-
-import static android.content.Context.WINDOW_SERVICE;
 
 public class CameraSourcePreview extends ViewGroup {
     private static final String TAG = "CameraSourcePreview";
