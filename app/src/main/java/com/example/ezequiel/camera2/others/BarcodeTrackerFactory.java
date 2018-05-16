@@ -81,7 +81,7 @@ class BarcodeGraphic extends TrackedGraphic<Barcode> {
      */
     void updateItem(Barcode barcode) {
         mBarcode = barcode;
-        Log.d("BarcodeTrackerFactory ","Barcode : "+barcode);
+        Log.d("BarcodeTrackerFactory ","Barcode : "+barcode.rawValue);
         postInvalidate();
     }
 

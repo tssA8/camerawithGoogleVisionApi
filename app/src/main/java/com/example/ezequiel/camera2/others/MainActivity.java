@@ -431,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(useCamera2) {
             mCamera2Source = new Camera2Source.Builder(context, multiDetector)
-                    .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
+                    .setFocusMode(Camera2Source.CAMERA_AF_CONTINUOUS_PICTURE)
                     .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
                     .setFacing(Camera2Source.CAMERA_FACING_BACK)
                     .build();
@@ -553,8 +553,10 @@ public class MainActivity extends AppCompatActivity {
                         mCamera2Source.autoFocus(new Camera2Source.AutoFocusCallback() {
                             @Override
                             public void onAutoFocus(boolean success) {
+                                Log.d(TAG,"AAA_onAutoFocus success : "+success);
                                 runOnUiThread(new Runnable() {
-                                    @Override public void run() {ivAutoFocus.setVisibility(View.GONE);}
+                                    @Override public void run() {
+                                        ivAutoFocus.setVisibility(View.GONE);}
                                 });
                             }
                         }, pEvent, v.getWidth(), v.getHeight());
