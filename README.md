@@ -1,8 +1,14 @@
+
+
 # Camera2Vision
 
-This sample will let you use the basic functionalities of both Camera1 API and Camera2 API, but with a Google Vision Face Detector added.
+This sample will let you use the basic functionalities of both Camera1 API and Camera2 API, but with a Google Vision Face,ocr,qrcode/barcode Detector added.
 You will get all the power of Google Vision Services on your Camera1/Camera2 application.
 You can switch between Front and Back cameras, take pictures and record video!
+
+## multi-detector
+* Add Multi Detector
+* OCR,FACE,BARCODE
 
 ## Pre-requisites
 
@@ -27,6 +33,13 @@ Tested and working on:
 
 Please let me know if you test with success on your devices so I can update this list.
 
+
+## how to use 
+``````````````````````````````````
+set the image resolution,
+ //init stream size
+        stream1Size = new Size(3840,2160);//w,h
+``````````````````````````````````
 ## License
 
 Copyright 2017 Minniti Ezequiel Adrian
