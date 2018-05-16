@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Size;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -60,23 +61,16 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
 
     // COMMON TO BOTH CAMERAS
     private CameraSourcePreview mPreview;
-//    private FaceDetector previewFaceDetector = null;
-//    private  BarcodeDetector barcodeDetector=null;
-//    private  BarcodeTrackerFactory barcodeFactory = null;
     private GraphicOverlay mGraphicOverlay;
-//    private FaceGraphic mFaceGraphic;
     private boolean wasActivityResumed = false;
     private boolean isRecordingVideo = false;
     private Button takePictureButton;
-    private Button switchButton;
     private Button videoButton;
-
-    // DEFAULT CAMERA BEING OPENED
-    private boolean usingFrontCamera = false;
 
     // MUST BE CAREFUL USING THIS VARIABLE.
     // ANY ATTEMPT TO START CAMERA2 ON API < 21 WILL CRASH.
     private boolean useCamera2 = true;
+    private Size stream1Size ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +80,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         context = getApplicationContext();
 
         takePictureButton = (Button) findViewById(R.id.btn_takepicture);
-        switchButton = (Button) findViewById(R.id.btn_switch);
         videoButton = (Button) findViewById(R.id.btn_video);
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
@@ -94,28 +87,17 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         ivAutoFocus = (ImageView) findViewById(R.id.ivAutoFocus);
         tv_barcodeResult = (TextView) findViewById(R.id.tv_barcode_result);
 
+
+        //init stream size
+        stream1Size = new Size(3840,2160);
+
         if(checkGooglePlayAvailability()) {
             requestPermissionThenOpenCamera();
 
-            switchButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(usingFrontCamera) {
-                        stopCameraSource();
-                        createCameraSourceBack();
-                        usingFrontCamera = false;
-                    } else {
-                        stopCameraSource();
-                        createCameraSourceFront();
-                        usingFrontCamera = true;
-                    }
-                }
-            });
 
             takePictureButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    switchButton.setEnabled(false);
                     videoButton.setEnabled(false);
                     takePictureButton.setEnabled(false);
                     if(useCamera2) {
@@ -129,7 +111,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             videoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    switchButton.setEnabled(false);
                     takePictureButton.setEnabled(false);
                     videoButton.setEnabled(false);
                     if(isRecordingVideo) {
@@ -161,7 +142,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switchButton.setEnabled(true);
                     videoButton.setEnabled(true);
                     takePictureButton.setEnabled(true);
                 }
@@ -204,7 +184,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switchButton.setEnabled(true);
                     takePictureButton.setEnabled(true);
                     videoButton.setEnabled(true);
                     videoButton.setText(getString(R.string.record_video));
@@ -220,7 +199,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switchButton.setEnabled(true);
                     takePictureButton.setEnabled(true);
                     videoButton.setEnabled(true);
                     videoButton.setText(getString(R.string.record_video));
@@ -250,7 +228,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switchButton.setEnabled(true);
                     takePictureButton.setEnabled(true);
                     videoButton.setEnabled(true);
                     videoButton.setText(getString(R.string.record_video));
@@ -266,7 +243,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switchButton.setEnabled(true);
                     takePictureButton.setEnabled(true);
                     videoButton.setEnabled(true);
                     videoButton.setText(getString(R.string.record_video));
@@ -290,7 +266,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switchButton.setEnabled(true);
                     videoButton.setEnabled(true);
                     takePictureButton.setEnabled(true);
                 }
@@ -344,64 +319,10 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         }
     }
 
-    private void createCameraSourceFront() {
-//        previewFaceDetector = new FaceDetector.Builder(context)
-//                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-//                .setMode(FaceDetector.FAST_MODE)
-//                .setProminentFaceOnly(true)
-//                .setTrackingEnabled(true)
-//                .build();
-//
-//        if(previewFaceDetector.isOperational()) {
-//            previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
-//        } else {
-//            Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        if(useCamera2) {
-//            mCamera2Source = new Camera2Source.Builder(context, previewFaceDetector)
-//                    .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
-//                    .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
-//                    .setFacing(Camera2Source.CAMERA_FACING_FRONT)
-//                    .build();
-//
-//            //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
-//            //WE WILL USE CAMERA1.
-//            if(mCamera2Source.isCamera2Native()) {
-//                startCameraSource();
-//            } else {
-//                useCamera2 = false;
-//                if(usingFrontCamera) createCameraSourceFront();
-//                else createCameraSourceBack();
-//            }
-//        } else {
-//            mCameraSource = new CameraSource.Builder(context, previewFaceDetector)
-//                    .setFacing(CameraSource.CAMERA_FACING_FRONT)
-//                    .setRequestedFps(30.0f)
-//                    .build();
-//
-//            startCameraSource();
-//        }
-    }
+
 
     private void createCameraSourceBack() {
 
-
-//        barcodeDetector = new BarcodeDetector.Builder(context).build();
-//        barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
-//        barcodeDetector.setProcessor(
-//                new MultiProcessor.Builder<>(barcodeFactory).build());
-//
-//
-//        previewFaceDetector = new FaceDetector.Builder(context)
-//                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-//                .setMode(FaceDetector.FAST_MODE)
-//                .setProminentFaceOnly(true)
-//                .setTrackingEnabled(true)
-//                .build();
-//        previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
 
         FaceDetector faceDetector = new FaceDetector.Builder(context).build();
         FaceTrackerFactory faceFactory = new FaceTrackerFactory(mGraphicOverlay);
@@ -460,24 +381,10 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
                     .setFocusMode(Camera2Source.CAMERA_AF_CONTINUOUS_PICTURE)
                     .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
                     .setFacing(Camera2Source.CAMERA_FACING_BACK)
+                    .setStreamSize(stream1Size)
                     .build();
 
             startCameraSource();
-//            //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
-//            //WE WILL USE CAMERA1.
-//            if(mCamera2Source.isCamera2Native()) {
-//                startCameraSource();
-//            } else {
-//                useCamera2 = false;
-//                if(usingFrontCamera) createCameraSourceFront(); else createCameraSourceBack();
-//            }
-//        } else {
-//            mCameraSource = new CameraSource.Builder(context, previewFaceDetector)
-//                    .setFacing(CameraSource.CAMERA_FACING_BACK)
-//                    .setRequestedFps(30.0f)
-//                    .build();
-//
-//            startCameraSource();
         }
     }
 
@@ -509,59 +416,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         mPreview.stop();
     }
 
-//    private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
-//        @Override
-//        public Tracker<Face> create(Face face) {
-//            return new GraphicFaceTracker(mGraphicOverlay);
-//        }
-//    }
-//
-//    private class GraphicFaceTracker extends Tracker<Face> {
-//        private GraphicOverlay mOverlay;
-//
-//        GraphicFaceTracker(GraphicOverlay overlay) {
-//            mOverlay = overlay;
-//            mFaceGraphic = new FaceGraphic(overlay, context);
-//        }
-//
-//        /**
-//         * Start tracking the detected face instance within the face overlay.
-//         */
-//        @Override
-//        public void onNewItem(int faceId, Face item) {
-//            mFaceGraphic.setId(faceId);
-//        }
-//
-//        /**
-//         * Update the position/characteristics of the face within the overlay.
-//         */
-//        @Override
-//        public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
-//            mOverlay.add(mFaceGraphic);
-//            mFaceGraphic.updateFace(face);
-//        }
-//
-//        /**
-//         * Hide the graphic when the corresponding face was not detected.  This can happen for
-//         * intermediate frames temporarily (e.g., if the face was momentarily blocked from
-//         * view).
-//         */
-//        @Override
-//        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-//            mFaceGraphic.goneFace();
-//            mOverlay.remove(mFaceGraphic);
-//        }
-//
-//        /**
-//         * Called when the face is assumed to be gone for good. Remove the graphic annotation from
-//         * the overlay.
-//         */
-//        @Override
-//        public void onDone() {
-//            mFaceGraphic.goneFace();
-//            mOverlay.remove(mFaceGraphic);
-//        }
-//    }
 
     private final CameraSourcePreview.OnTouchListener CameraPreviewTouchListener = new CameraSourcePreview.OnTouchListener() {
         @Override
@@ -633,11 +487,7 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         if(wasActivityResumed)
         	//If the CAMERA2 is paused then resumed, it won't start again unless creating the whole camera again.
         	if(useCamera2) {
-        		if(usingFrontCamera) {
-        			createCameraSourceFront();
-        		} else {
-        			createCameraSourceBack();
-        		}
+                createCameraSourceBack();
         	} else {
         		startCameraSource();
         	}
@@ -654,9 +504,6 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
     protected void onDestroy() {
         super.onDestroy();
         stopCameraSource();
-//        if(previewFaceDetector != null) {
-//            previewFaceDetector.release();
-//        }
     }
 
     @Override

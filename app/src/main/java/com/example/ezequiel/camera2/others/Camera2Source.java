@@ -101,6 +101,8 @@ public class Camera2Source {
     private boolean cameraStarted = false;
     private int mSensorOrientation;
 
+    private android.util.Size stream1Size;
+
     /**
      * A reference to the opened {@link CameraDevice}.
      */
@@ -440,6 +442,11 @@ public class Camera2Source {
                 throw new IllegalArgumentException("Invalid camera: " + facing);
             }
             mCameraSource.mFacing = facing;
+            return this;
+        }
+
+        public Builder setStreamSize(android.util.Size stream1){
+            mCameraSource.stream1Size = stream1;
             return this;
         }
 
@@ -1130,7 +1137,7 @@ public class Camera2Source {
             // We configure the size of default buffer to be the size of camera preview we want.
             texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
             //3840 2160
-            mImageReaderPreview = ImageReader.newInstance(3840, 2160, ImageFormat.YUV_420_888, 1);
+            mImageReaderPreview = ImageReader.newInstance(stream1Size.getWidth(), stream1Size.getHeight(), ImageFormat.YUV_420_888, 1);
             mImageReaderPreview.setOnImageAvailableListener(mOnPreviewAvailableListener, mBackgroundHandler);
 
             // This is the output Surface we need to start preview.
@@ -1347,8 +1354,8 @@ public class Camera2Source {
                     outputFrame = new Frame.Builder()
                             .setImageData(
                                     ByteBuffer.wrap(mPendingFrameData)
-                                    , 3840
-                                    , 2160
+                                    , stream1Size.getWidth()
+                                    , stream1Size.getHeight()
                                     , ImageFormat.NV21)
                             .setId(mPendingFrameId)
                             .setTimestampMillis(mPendingTimeMillis)
