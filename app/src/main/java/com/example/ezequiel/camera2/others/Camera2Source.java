@@ -32,7 +32,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.SystemClock;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
@@ -41,7 +40,6 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.Surface;
-import android.widget.Toast;
 
 import com.example.ezequiel.camera2.utils.Utils;
 import com.google.android.gms.common.images.Size;
@@ -50,8 +48,6 @@ import com.google.android.gms.vision.Frame;
 
 import java.io.IOException;
 import java.lang.Thread.State;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -348,12 +344,17 @@ public class Camera2Source {
      * This is a callback object for the {@link ImageReader}. "onImageAvailable" will be called when a
      * preview frame is ready to be processed.
      */
+    boolean isFirst = true;
     private final ImageReader.OnImageAvailableListener mOnPreviewAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image mImage = reader.acquireNextImage();
             if(mImage == null) {
                 return;
+            }
+            if(isFirst){
+                Log.d(TAG,"AAA_mOnPreviewAvailableListener mImage W : "+mImage.getWidth());
+                isFirst = false;
             }
             mFrameProcessor.setNextFrame(convertYUV420888ToNV21(mImage));
             mImage.close();
@@ -1128,8 +1129,8 @@ public class Camera2Source {
 
             // We configure the size of default buffer to be the size of camera preview we want.
             texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-
-            mImageReaderPreview = ImageReader.newInstance(mPreviewSize.getWidth(), mPreviewSize.getHeight(), ImageFormat.YUV_420_888, 1);
+            //3840 2160
+            mImageReaderPreview = ImageReader.newInstance(3840, 2160, ImageFormat.YUV_420_888, 1);
             mImageReaderPreview.setOnImageAvailableListener(mOnPreviewAvailableListener, mBackgroundHandler);
 
             // This is the output Surface we need to start preview.
@@ -1343,13 +1344,32 @@ public class Camera2Source {
                         // loop.
                         return;
                     }
-
                     outputFrame = new Frame.Builder()
-                            .setImageData(ByteBuffer.wrap(quarterNV21(mPendingFrameData, mPreviewSize.getWidth(), mPreviewSize.getHeight())), mPreviewSize.getWidth()/4, mPreviewSize.getHeight()/4, ImageFormat.NV21)
+                            .setImageData(
+                                    ByteBuffer.wrap(mPendingFrameData)
+                                    , 3840
+                                    , 2160
+                                    , ImageFormat.NV21)
                             .setId(mPendingFrameId)
                             .setTimestampMillis(mPendingTimeMillis)
                             .setRotation(getDetectorOrientation(mSensorOrientation))
                             .build();
+
+
+//                    outputFrame = new Frame.Builder()
+//                            .setImageData(
+//                                    ByteBuffer.wrap(
+//                                            quarterNV21(
+//                                                    mPendingFrameData
+//                                                    , mPreviewSize.getWidth()
+//                                                    , mPreviewSize.getHeight()))
+//                                                    , mPreviewSize.getWidth()/4
+//                                                    , mPreviewSize.getHeight()/4
+//                                                    , ImageFormat.NV21)
+//                            .setId(mPendingFrameId)
+//                            .setTimestampMillis(mPendingTimeMillis)
+//                            .setRotation(getDetectorOrientation(mSensorOrientation))
+//                            .build();
 
                     // We need to clear mPendingFrameData to ensure that this buffer isn't
                     // recycled back to the camera before we are done using that data.

@@ -15,10 +15,12 @@
  */
 package com.example.ezequiel.camera2.others;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.annotation.UiThread;
 import android.util.Log;
 
 import com.google.android.gms.vision.MultiProcessor;
@@ -31,14 +33,20 @@ import com.google.android.gms.vision.barcode.Barcode;
  */
 class BarcodeTrackerFactory implements MultiProcessor.Factory<Barcode> {
     private GraphicOverlay mGraphicOverlay;
+    private BarcodeGraphic.BarcodeUpdateListener mBarcodeUpdateListener;
 
-    BarcodeTrackerFactory(GraphicOverlay graphicOverlay) {
+    BarcodeTrackerFactory(GraphicOverlay graphicOverlay,Context context) {
         mGraphicOverlay = graphicOverlay;
+        if (context instanceof BarcodeGraphic.BarcodeUpdateListener) {
+            this.mBarcodeUpdateListener = (BarcodeGraphic.BarcodeUpdateListener) context;
+        } else {
+            throw new RuntimeException("Hosting activity must implement BarcodeUpdateListener");
+        }
     }
 
     @Override
     public Tracker<Barcode> create(Barcode barcode) {
-        BarcodeGraphic graphic = new BarcodeGraphic(mGraphicOverlay);
+        BarcodeGraphic graphic = new BarcodeGraphic(mGraphicOverlay,mBarcodeUpdateListener);
         return new GraphicTracker<>(mGraphicOverlay, graphic);
     }
 }
@@ -58,10 +66,11 @@ class BarcodeGraphic extends TrackedGraphic<Barcode> {
     private Paint mRectPaint;
     private Paint mTextPaint;
     private volatile Barcode mBarcode;
+    private BarcodeUpdateListener mBarcodeUpdateListener;
 
-    BarcodeGraphic(GraphicOverlay overlay) {
+    BarcodeGraphic(GraphicOverlay overlay,BarcodeUpdateListener mBarcodeUpdateListener) {
         super(overlay);
-
+        this.mBarcodeUpdateListener = mBarcodeUpdateListener;
         mCurrentColorIndex = (mCurrentColorIndex + 1) % COLOR_CHOICES.length;
         final int selectedColor = COLOR_CHOICES[mCurrentColorIndex];
 
@@ -81,6 +90,7 @@ class BarcodeGraphic extends TrackedGraphic<Barcode> {
      */
     void updateItem(Barcode barcode) {
         mBarcode = barcode;
+        mBarcodeUpdateListener.onBarcodeDetected(barcode);
         Log.d("BarcodeTrackerFactory ","Barcode : "+barcode.rawValue);
         postInvalidate();
     }
@@ -106,4 +116,14 @@ class BarcodeGraphic extends TrackedGraphic<Barcode> {
         // Draws a label at the bottom of the barcode indicate the barcode value that was detected.
         canvas.drawText(barcode.rawValue, rect.left, rect.bottom, mTextPaint);
     }
+
+    /**
+     * Consume the item instance detected from an Activity or Fragment level by implementing the
+     * BarcodeUpdateListener interface method onBarcodeDetected.
+     */
+    public interface BarcodeUpdateListener {
+        @UiThread
+        void onBarcodeDetected(Barcode barcode);
+    }
+
 }

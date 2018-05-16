@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +30,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.MultiDetector;
 import com.google.android.gms.vision.MultiProcessor;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.android.gms.vision.face.FaceDetector;
 
@@ -37,12 +39,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "Ezequiel Adrian Camera";
+public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.BarcodeUpdateListener{
+    private String TAG = this.getClass().getSimpleName();
     private Context context;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_STORAGE_PERMISSION = 201;
     private TextView cameraVersion;
+    private TextView tv_barcodeResult;
     private ImageView ivAutoFocus;
 
     // CAMERA VERSION ONE DECLARATIONS
@@ -85,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
         cameraVersion = (TextView) findViewById(R.id.cameraVersion);
         ivAutoFocus = (ImageView) findViewById(R.id.ivAutoFocus);
+        tv_barcodeResult = (TextView) findViewById(R.id.tv_barcode_result);
 
         if(checkGooglePlayAvailability()) {
             requestPermissionThenOpenCamera();
@@ -143,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
             mPreview.setOnTouchListener(CameraPreviewTouchListener);
         }
     }
+
 
     final CameraSource.ShutterCallback cameraSourceShutterCallback = new CameraSource.ShutterCallback() {@Override public void onShutter() {Log.d(TAG, "Shutter Callback!");}};
     final CameraSource.PictureCallback cameraSourcePictureCallback = new CameraSource.PictureCallback() {
@@ -405,9 +410,8 @@ public class MainActivity extends AppCompatActivity {
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
-        barcodeDetector.setProcessor(
-                new MultiProcessor.Builder<>(barcodeFactory).build());
+        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay,MainActivity.this);
+        barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
 
 
         if(barcodeDetector.isOperational()) {
@@ -631,5 +635,20 @@ public class MainActivity extends AppCompatActivity {
 //        if(previewFaceDetector != null) {
 //            previewFaceDetector.release();
 //        }
+    }
+
+    @Override
+    public void onBarcodeDetected(Barcode barcode) {
+        final  String  barcodeResult = barcode.rawValue;
+        Log.d(TAG,"AAA_barcode : "+barcodeResult);
+
+        if(!TextUtils.isEmpty(barcodeResult)){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tv_barcodeResult.setText("辨識結果: "+barcodeResult);
+                }
+            });
+        }
     }
 }
