@@ -64,9 +64,17 @@
             android:textSize="20sp"
             android:text="123123" />
 
+
+        <TextView
+            android:id="@+id/tv_ocr_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textColor="@color/colorAccent"
+            android:textSize="20sp"
+            android:text="ocrrrrr" />
+
     </LinearLayout>
-
-
 
 
     <ImageView

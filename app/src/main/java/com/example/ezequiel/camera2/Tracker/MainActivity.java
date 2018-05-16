@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
     private static final int REQUEST_STORAGE_PERMISSION = 201;
     private TextView cameraVersion;
     private TextView tv_barcodeResult;
+    private TextView tv_ocrResult;
     private ImageView ivAutoFocus;
 
     // CAMERA VERSION ONE DECLARATIONS
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
         cameraVersion = (TextView) findViewById(R.id.cameraVersion);
         ivAutoFocus = (ImageView) findViewById(R.id.ivAutoFocus);
         tv_barcodeResult = (TextView) findViewById(R.id.tv_barcode_result);
-
+        tv_ocrResult = (TextView) findViewById(R.id.tv_ocr_result);
 
         //init stream size
         stream1Size = new Size(3840,2160);
@@ -517,19 +518,31 @@ public class MainActivity extends AppCompatActivity  implements BarcodeGraphic.B
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tv_barcodeResult.setText("辨識結果: "+barcodeResult);
+                    tv_barcodeResult.setText("QR/BARCODE 辨識結果: "+barcodeResult);
                 }
             });
         }
     }
 
     @Override
-    public void onOcrDetected(TextBlock mText) {
+    public void onOcrDetected(final TextBlock mText) {
         if(mText!=null){
-            List<? extends Text> textComponents = mText.getComponents();
-            for(Text currentText : textComponents) {
-                Log.d(TAG,"AAA_onOcrDetected : "+mText.getValue());
-            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String ocrResult;
+                    StringBuilder s = new StringBuilder(100);
+                    List<? extends Text> textComponents = mText.getComponents();
+                    for(Text currentText : textComponents) {
+                        Log.d(TAG,"AAA_onOcrDetected : "+currentText.getValue());
+                        ocrResult = currentText.getValue();
+                        s.append(ocrResult);
+                    }
+                    tv_ocrResult.setText("OCR 辨識結果: "+s.toString());
+                }
+            });
+
         }
     }
 }
